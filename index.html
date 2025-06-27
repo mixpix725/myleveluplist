@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>나만의 할 일 도구</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-right: 10px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        button {
+            padding: 10px 18px;
+            background-color: #4f81ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3a6de0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 300px;
+            margin-top: 30px;
+        }
+
+        li {
+            background: white;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 5px solid #4f81ff;
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0,1s ease; 
+        }
+
+        li:hover {
+            transform: scale(1.02);
+            background-color: #f8fbff;
+        }
+
+        #level, #exp {
+            font-weight: bold;
+            color: #4f81ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 오늘의 할 일</h1>
+
+    <h2>레벨: <span id="level">1</span> | 경험치: <span id="exp">0</span>/5</span></h2>
+
+    <input type="text" id="todoInput" placeholder="할 일을 입력하세요">
+    <button onclick="addTodo()">추가</button>
+
+    <ul id="todoList">
+
+    </ul>
+
+    <script>
+        const todoInput = document.getElementById("todoInput");
+        const todoList = document.getElementById("todoList");
+
+        function loadTodos() {
+            const saved = localStorage.getItem("todos");
+            if (saved) {
+                const todos = JSON.parse(saved);
+                todos.forEach(text => createTodo(text));
+            }
+        }
+
+        function saveTodos() {
+            const todos = [];
+            document.querySelectorAll("#todoList li").forEach(li => {
+                todos.push(li.textContent);
+            });
+            localStorage.setItem("todos", JSON.stringify(todos));
+        }
+
+        function createTodo(text) {
+            const li = document.createElement("li");
+            li.textContent = text;
+            li.addEventListener("click", function () {
+                li.remove();
+                gainExp();
+                saveTodos();
+            });
+            todoList.appendChild(li);
+        }
+
+        function addTodo() {
+            const text = todoInput.value.trim();
+            if (text !== "") {
+                createTodo(text);
+                saveTodos();
+                todoInput.value = "";
+            }
+        }
+
+        let level = parseInt(localStorage.getItem("level")) || 1;
+        let exp = parseInt(localStorage.getItem("exp")) || 0;
+
+        function updateLevelDisplay() {
+            document.getElementById("level").textContent = level;
+            document.getElementById("exp").textContent = exp;
+        }
+
+        function gainExp() {
+            exp += 1;
+            if (exp >= 5) {
+                level += 1;
+                exp = 0;
+            }
+            localStorage.setItem("level", level);
+            localStorage.setItem("exp", exp);
+            updateLevelDisplay();
+        }
+
+        loadTodos();
+        updateLevelDisplay();
+    </script>
+</body>
+</html>
